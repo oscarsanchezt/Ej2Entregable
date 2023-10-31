@@ -56,31 +56,32 @@ class Email {
 }
 
 class Buffer {
-	
-	//se recomendaría utilizar una estructura de datos thread-safe como BlockingQueue
-	
-    private List<Email> emails = new ArrayList<>();
 
-    public void depositarEmail(Email email, String nombreProductor) {
-        if (!email.getDestinatario().equals("pikachu@gmail.com")) {
-            emails.add(email);
-            System.out.println(nombreProductor + " depositó el email con ID " + email.getId());
-        } else {
-            System.out.println("Descartando email para " + email.getDestinatario() + " por " + nombreProductor);
-        }
-    }
+	// se recomendaría utilizar una estructura de datos thread-safe como
+	// BlockingQueue
 
-    public Email tomarEmail(String nombreConsumidor) {
-        if (emails.isEmpty()) {
-            return null;
-        }
+	private List<Email> emails = new ArrayList<>();
 
-        Email email = emails.remove(0);
-        System.out.println(nombreConsumidor + " envió el email con ID " + email.getId() + " a " + email.getDestinatario());
-        return email;
-    }
+	public synchronized void depositarEmail(Email email, String nombreProductor) {
+		if (!email.getDestinatario().equals("pikachu@gmail.com")) {
+			emails.add(email);
+			System.out.println(nombreProductor + " depositó el email con ID " + email.getId());
+		} else {
+			System.out.println("Descartando email para " + email.getDestinatario() + " por " + nombreProductor);
+		}
+	}
+
+	public synchronized Email tomarEmail(String nombreConsumidor) {
+		if (emails.isEmpty()) {
+			return null;
+		}
+
+		Email email = emails.remove(0);
+		System.out.println(
+				nombreConsumidor + " envió el email con ID " + email.getId() + " a " + email.getDestinatario());
+		return email;
+	}
 }
-
 
 class Productor implements Runnable {
 	private Buffer buffer;
@@ -122,5 +123,3 @@ class Consumidor implements Runnable {
 		}
 	}
 }
-
-
